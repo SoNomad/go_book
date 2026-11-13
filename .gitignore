@@ -1,0 +1,19 @@
+# зависимости и сборка сайта
+node_modules/
+site/.vitepress/cache/
+site/.vitepress/dist/
+# генерируется из корневых *.md скриптом site/scripts/sync-content.mjs
+site/content/
+
+# Go-артефакты
+*.exe
+*.test
+*.out
+*.pprof
+
+# локальное
+.claude/
+.env
+site/*.log
+.DS_Store
+Thumbs.db

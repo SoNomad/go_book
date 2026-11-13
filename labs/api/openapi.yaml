@@ -1,0 +1,169 @@
+openapi: 3.0.3
+info:
+  title: Todo API
+  version: 1.0.0
+  description: Контракт учебного TODO API из главы 6 (реализован в tasks/ch06/todoapi).
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: todos
+
+paths:
+  /todos:
+    get:
+      tags: [todos]
+      operationId: listTodos
+      summary: Список задач (по возрастанию id)
+      parameters:
+        - name: done
+          in: query
+          description: Фильтр по статусу выполнения
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Массив задач (пустой — это [], а не null)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Todo"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+    post:
+      tags: [todos]
+      operationId: createTodo
+      summary: Создать задачу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTodo"
+      responses:
+        "201":
+          description: Задача создана
+          headers:
+            Location:
+              description: URL созданной задачи
+              schema:
+                type: string
+                example: /todos/1
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /todos/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      tags: [todos]
+      operationId: getTodo
+      summary: Получить задачу
+      responses:
+        "200":
+          description: Задача
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [todos]
+      operationId: updateTodo
+      summary: Частично изменить задачу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTodo"
+      responses:
+        "200":
+          description: Обновлённая задача
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [todos]
+      operationId: deleteTodo
+      summary: Удалить задачу
+      responses:
+        "204":
+          description: Удалено
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  schemas:
+    Todo:
+      type: object
+      required: [id, title, done]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        title:
+          type: string
+          minLength: 1
+          example: Купить молоко
+        done:
+          type: boolean
+    CreateTodo:
+      type: object
+      required: [title]
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+    UpdateTodo:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          minLength: 1
+        done:
+          type: boolean
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: title is required
+  responses:
+    BadRequest:
+      description: Некорректный запрос (JSON, валидация, параметры)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

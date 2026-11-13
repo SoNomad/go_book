@@ -1,0 +1,78 @@
+# Сборка сайта книги и публикация на GitHub Pages.
+#   push в main            → проверки + сборка + публикация
+#   pull request           → только проверки и сборка (без публикации)
+# Настройка один раз: Settings → Pages → Source: «GitHub Actions» (см. site/PUBLISHING.md).
+name: Сайт книги → GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Книга не публикуется, если сломаны её собственные примеры на Go.
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Go — vet и эталонные решения
+        run: |
+          go vet ./...
+          go test ./solutions/...
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: Зависимости сайта
+        working-directory: site
+        run: npm ci
+      - name: Тесты сайта (синтаксис всех диаграмм, модели визуализаторов, прогресс)
+        working-directory: site
+        run: npm test
+
+      # Сайт живёт в /<имя-репозитория>/, кроме репозитория вида <user>.github.io (корень).
+      - name: Определить base
+        run: |
+          name="${{ github.event.repository.name }}"
+          if [[ "$name" == *.github.io ]]; then echo "BASE=/" >> "$GITHUB_ENV"; else echo "BASE=$name" >> "$GITHUB_ENV"; fi
+      - name: Сборка сайта
+        working-directory: site
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: npm run build
+
+      - name: Настроить Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+      - name: Загрузить артефакт
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/.vitepress/dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

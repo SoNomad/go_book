@@ -1,0 +1,223 @@
+/* Тема: циановая палитра (в духе Go), хорошая читаемость на телефоне. */
+
+:root {
+  --vp-c-brand-1: #00849e;
+  --vp-c-brand-2: #00a0c0;
+  --vp-c-brand-3: #00add8;
+  --vp-c-brand-soft: rgba(0, 173, 216, 0.14);
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #00add8 30%, #2b6cb0);
+  --vp-home-hero-image-background-image: linear-gradient(-45deg, #00add8 50%, #6dd6ec 50%);
+  --vp-home-hero-image-filter: blur(44px);
+
+  /* роли в диаграммах и визуализаторах (одинаковые во всей книге) */
+  --viz-client: #6366f1;
+  --viz-service: #00849e;
+  --viz-data: #d97706;
+  --viz-external: #7c3aed;
+  --viz-ok: #16a34a;
+  --viz-bad: #dc2626;
+  --viz-muted: var(--vp-c-text-3);
+}
+
+.dark {
+  --vp-c-brand-1: #33c6ea;
+  --vp-c-brand-2: #00add8;
+  --vp-c-brand-3: #0b87a8;
+  --vp-c-brand-soft: rgba(51, 198, 234, 0.16);
+
+  --viz-client: #818cf8;
+  --viz-service: #33c6ea;
+  --viz-data: #fbbf24;
+  --viz-external: #a78bfa;
+  --viz-ok: #4ade80;
+  --viz-bad: #f87171;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Таблицы и длинные блоки кода прокручиваются по горизонтали, а не ломают страницу. */
+.vp-doc table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.vp-doc div[class*='language-'] {
+  max-width: 100%;
+}
+
+/* Крупнее зона нажатия у пунктов меню и ссылок на телефоне. */
+@media (max-width: 768px) {
+  .vp-doc {
+    font-size: 16px;
+  }
+  .VPSidebar .VPLink {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  .vp-doc h2 {
+    margin-top: 36px;
+  }
+}
+
+/* Блоки «Insight»/предупреждения из книги выглядят как цитаты — делаем их заметнее. */
+.vp-doc blockquote {
+  border-left: 3px solid var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
+  border-radius: 0 8px 8px 0;
+  padding: 4px 16px;
+}
+.vp-doc blockquote p {
+  color: var(--vp-c-text-1);
+}
+
+/* Диаграммы Mermaid: по центру, не вылезают за экран. */
+.vp-doc .mermaid {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+/* ===== Интерактивные визуализаторы (общие классы для theme/components/*.vue) ===== */
+.viz {
+  margin: 24px 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  background: var(--vp-c-bg-soft);
+  overflow: hidden;
+}
+.viz-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--vp-c-divider);
+  font-weight: 600;
+  font-size: 14px;
+}
+.viz-head .tag {
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+}
+.viz-body {
+  padding: 14px;
+  overflow-x: auto;
+}
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.viz-btn {
+  min-height: 40px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.viz-btn:hover:not(:disabled) {
+  border-color: var(--vp-c-brand-1);
+  color: var(--vp-c-brand-1);
+}
+.viz-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.viz-btn.primary {
+  background: var(--vp-c-brand-1);
+  border-color: var(--vp-c-brand-1);
+  color: #fff;
+}
+.viz-btn.on {
+  border-color: var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  font-weight: 600;
+}
+.viz-note {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-divider);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.viz-note.bad {
+  border-color: var(--viz-bad);
+}
+.viz-note.ok {
+  border-color: var(--viz-ok);
+}
+.viz-chip {
+  display: inline-block;
+  padding: 2px 10px;
+  margin: 2px 4px 2px 0;
+  border-radius: 999px;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  font-size: 12px;
+  font-family: var(--vp-font-family-mono);
+}
+.vp-doc .viz table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  font-size: 13px;
+}
+.vp-doc .viz th,
+.vp-doc .viz td {
+  padding: 4px 8px;
+}
+
+/* ===== Прогресс: чекбоксы в «Задачи» и «Самопроверка» ===== */
+.gb-check {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0 8px 0 0;
+  vertical-align: -3px;
+  accent-color: var(--vp-c-brand-1);
+  cursor: pointer;
+}
+.vp-doc li.gb-done,
+.vp-doc tr.gb-done td {
+  opacity: 0.55;
+}
+.gb-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 14px;
+  font-size: 14px;
+  color: var(--vp-c-text-2);
+}
+.gb-bar {
+  flex: 1;
+  max-width: 240px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--vp-c-divider);
+  overflow: hidden;
+}
+.gb-bar i {
+  display: block;
+  height: 100%;
+  background: var(--vp-c-brand-1);
+  transition: width 0.2s;
+}
+.gb-summary.gb-complete .gb-bar i {
+  background: var(--viz-ok);
+}
